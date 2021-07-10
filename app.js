@@ -5,7 +5,9 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
 
+const { requireAuth, checkUser } = require('./middlewares/authMiddleware');
 const authRoutes = require('./routes/authRoutes');
+const blogRoutes = require('./routes/blogRoutes');
 
 const app = express();
 
@@ -23,11 +25,16 @@ mongoose.connect('mongodb://localhost:27017/UserAuthDB', {useNewUrlParser: true,
   .then((result) => app.listen(3000))
   .catch((err) => console.log(err));
 
-app.use('/', authRoutes);
+app.get('*', checkUser);
 
 app.get('/', (req, res) => {
   res.send('Home');
 });
+
+app.use('/', authRoutes);
+app.use('/blogs', requireAuth, blogRoutes);
+
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
