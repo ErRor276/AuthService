@@ -5,8 +5,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
 
-const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
@@ -20,10 +19,15 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.listen(3000);
+mongoose.connect('mongodb://localhost:27017/UserAuthDB', {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex:true})
+  .then((result) => app.listen(3000))
+  .catch((err) => console.log(err));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/', authRoutes);
+
+app.get('/', (req, res) => {
+  res.send('Home');
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
